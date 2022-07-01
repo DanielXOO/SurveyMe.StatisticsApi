@@ -1,6 +1,7 @@
 using AutoMapper;
 using MassTransit;
 using Statistics.Models.Surveys;
+using Statistics.Services.Abstracts;
 using SurveyMe.Common.Exceptions;
 using SurveyMe.QueueModels;
 using ILogger = SurveyMe.Common.Logging.Abstracts.ILogger;
@@ -13,11 +14,14 @@ public sealed class SurveysConsumer : IConsumer<SurveyQueueModel>
 
     private readonly IMapper _mapper;
 
+    private readonly IStatisticsService _statisticsService;
+
     
-    public SurveysConsumer(ILogger logger, IMapper mapper)
+    public SurveysConsumer(ILogger logger, IMapper mapper, IStatisticsService statisticsService)
     {
         _logger = logger;
         _mapper = mapper;
+        _statisticsService = statisticsService;
     }
 
     
@@ -43,7 +47,7 @@ public sealed class SurveysConsumer : IConsumer<SurveyQueueModel>
         switch (surveyQueue.EventType)
         {
             case EventType.Create:
-                
+                await _statisticsService.CreateStatisticsAsync(survey);
                 break;
             case EventType.Update:
                 

@@ -23,6 +23,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Statistics.Models\Statistics.Models.csproj" />
+      <ProjectReference Include="..\Statistics.Services\Statistics.Services.csproj" />
     </ItemGroup>
 
 </Project>
