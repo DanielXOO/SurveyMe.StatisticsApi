@@ -1,13 +1,16 @@
 ﻿using Statistics.Models.Answers;
 using Statistics.Models.Surveys;
+using Statistics.Services.Models;
 
 namespace Statistics.Services.Abstracts;
 
 public interface IStatisticsService
 {
-    //TODO: Add Get Delete
+    Task<SurveyStatisticsWithPersonality> GetStatisticsBySurveyId(Guid surveyId);
 
+    Task DeleteStatisticsAsync(Survey survey);
+    
     Task CreateStatisticsAsync(Survey survey);
     
-    Task UpdateStatisticsAsync(SurveyAnswer answer);
+    Task AddAnswerToStatisticsAsync(SurveyAnswer answer);
 }

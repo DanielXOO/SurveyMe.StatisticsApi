@@ -4,6 +4,7 @@ using Statistics.Models.Answers;
 using Statistics.Services.Abstracts;
 using SurveyMe.AnswersApi.Models.Queue;
 using SurveyMe.Common.Exceptions;
+using ILogger = SurveyMe.Common.Logging.Abstracts.ILogger;
 
 namespace Statistics.Api.Consumers;
 
@@ -37,6 +38,6 @@ public sealed class AnswersConsumer : IConsumer<SurveyAnswerQueue>
 
         var answer = _mapper.Map<SurveyAnswer>(answerQueue);
 
-        await _statisticsService.UpdateStatisticsAsync(answer);
+        await _statisticsService.AddAnswerToStatisticsAsync(answer);
     }
 }

@@ -1,8 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Statistics.Data.EFCore.Core;
 using Statistics.Data.EFCore.Repositories.Abstracts;
-using Statistics.Models.Answers;
-using Statistics.Models.Statistics;
 using Statistics.Models.Statistics.Questions;
 using Statistics.Models.Statistics.Surveys;
 
@@ -29,9 +27,17 @@ public class StatisticsRepository : Repository<SurveyStatistics>, IStatisticsRep
         return statistic;
     }
 
+    public async Task DeleteStatisticsBySurveyIdAsync(Guid surveyId)
+    {
+        var statistics = await Data
+            .FirstOrDefaultAsync(s => s.SurveyId == surveyId);
+
+        await DeleteAsync(statistics);
+    }
+
     public async Task<bool> IsStatisticsExists(Guid surveyId)
     {
-        var isExists = Data.Any(s => s.SurveyId == surveyId);
+        var isExists = await Data.AnyAsync(s => s.SurveyId == surveyId);
 
         return isExists;
     }

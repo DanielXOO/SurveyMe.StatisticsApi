@@ -1,13 +1,10 @@
-﻿using Statistics.Models.Statistics;
-using Statistics.Models.Statistics.Surveys;
+﻿namespace Statistics.Models.Personalities;
 
-namespace Statistics.Models.Personalities;
-
-public sealed class Personality
+public class Personality
 {
-    public Guid Id { get; set; }
-    
-    public Guid SurveyStatisticsId { get; set; }
-    
-    public SurveyStatistics SurveyStatistics { get; set; }
+    public int? Age { get; set; }
+
+    public Gender? Gender { get; set; }
+
+    public Guid? UserId { get; set; }
 }

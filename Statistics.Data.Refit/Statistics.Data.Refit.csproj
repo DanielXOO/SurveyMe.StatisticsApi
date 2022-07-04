@@ -9,6 +9,7 @@
     <ItemGroup>
       <PackageReference Include="Refit" Version="6.3.2" />
       <PackageReference Include="SurveyMe.PersonsApi.Models" Version="1.0.0" />
+      <PackageReference Include="SurveyMe.SurveyPersonApi.Models" Version="1.1.2" />
     </ItemGroup>
 
 </Project>

@@ -11,7 +11,7 @@ public class SurveyStatistics
     
     public int AnswersCount { get; set; }
 
-    public ICollection<Personality> Personalities { get; set; }
+    public ICollection<PersonalityInfo> Personalities { get; set; }
     
     public ICollection<BaseQuestionStatistics> QuestionStatistics { get; set; }
 }

@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Statistics.Models.Answers;
-using Statistics.Models.Statistics;
 using Statistics.Models.Statistics.Questions;
 using Statistics.Models.Statistics.Surveys;
 

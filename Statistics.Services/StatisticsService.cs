@@ -8,7 +8,9 @@ using Statistics.Models.Statistics.Questions;
 using Statistics.Models.Statistics.Surveys;
 using Statistics.Models.Surveys;
 using Statistics.Services.Abstracts;
+using Statistics.Services.Models;
 using SurveyMe.Common.Exceptions;
+using SurveyMe.SurveyPersonApi.Models.Request.Options.Survey;
 
 namespace Statistics.Services;
 
@@ -18,23 +20,68 @@ public class StatisticsService : IStatisticsService
 
     private readonly IPersonsApi _personsApi;
 
+    private readonly ISurveyPersonOptionsApi _personOptionsApi;
+
     private readonly IMapper _mapper;
     
     
-    public StatisticsService(IStatisticsUnitOfWork unitOfWork, IPersonsApi personsApi, IMapper mapper)
+    public StatisticsService(IStatisticsUnitOfWork unitOfWork, IPersonsApi personsApi,
+        IMapper mapper, ISurveyPersonOptionsApi personOptionsApi)
     {
         _unitOfWork = unitOfWork;
         _personsApi = personsApi;
         _mapper = mapper;
+        _personOptionsApi = personOptionsApi;
     }
-    
-    
+
+
+    public async Task<SurveyStatisticsWithPersonality> GetStatisticsBySurveyId(Guid surveyId)
+    {
+        var statistics = await _unitOfWork.Statistics.GetStatisticBySurveyId(surveyId);
+
+        var personalityOptionsResponse = await _personOptionsApi
+            .GetSurveyOptionsAsync(statistics.SurveyId);
+
+        var personalityOptions = _mapper.Map<SurveyOptionsGetRequestModel>(personalityOptionsResponse);
+
+        var personalities = new List<Personality>();
+        
+        foreach (var statisticsPersonality in statistics.Personalities)
+        {
+            var personalityResponse = await _personsApi
+                .GetPersonalityAsync(statisticsPersonality.Id, personalityOptions);
+            var personality = _mapper.Map<Personality>(personalityResponse);
+            
+            personalities.Add(personality);
+        }
+
+        var averageAge = personalities.Sum(p => p.Age) / personalities.Count;
+
+        var genderStatistics = personalities
+            .GroupBy(p => p.Gender)
+            .ToDictionary(grouping => grouping.Key.Value, grouping => grouping.Count());
+
+        var statisticResult = new SurveyStatisticsWithPersonality
+        {
+            GenderStatistics = genderStatistics,
+            AverageAge = averageAge,
+            SurveyStatistics = statistics
+        };
+
+        return statisticResult;
+    }
+
+    public async Task DeleteStatisticsAsync(Survey survey)
+    {
+        await _unitOfWork.Statistics.DeleteStatisticsBySurveyIdAsync(survey.Id);
+    }
+
     public async Task CreateStatisticsAsync(Survey survey)
     {
         var surveyStatistics = new SurveyStatistics
         {
             SurveyId = survey.Id,
-            Personalities = new List<Personality>(),
+            Personalities = new List<PersonalityInfo>(),
         };
 
         var questionsStatistics = new List<BaseQuestionStatistics>();
@@ -68,6 +115,8 @@ public class StatisticsService : IStatisticsService
 
             questionStatistics.QuestionId = question.Id;
             questionStatistics.QuestionType = question.Type;
+            
+            questionsStatistics.Add(questionStatistics);
         }
 
         surveyStatistics.QuestionStatistics = questionsStatistics;
@@ -75,7 +124,7 @@ public class StatisticsService : IStatisticsService
         await _unitOfWork.Statistics.CreateAsync(surveyStatistics);
     }
 
-    public async Task UpdateStatisticsAsync(SurveyAnswer answer)
+    public async Task AddAnswerToStatisticsAsync(SurveyAnswer answer)
     {
         var statistics = await _unitOfWork.Statistics.GetStatisticBySurveyId(answer.SurveyId);
 

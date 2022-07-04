@@ -8,6 +8,6 @@ public class PersonalityProfile : Profile
 {
     public PersonalityProfile()
     {
-        CreateMap<PersonalityResponseModel, Personality>();
+        CreateMap<PersonalityResponseModel, PersonalityInfo>();
     }
 }
