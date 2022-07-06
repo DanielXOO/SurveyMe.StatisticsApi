@@ -16,7 +16,7 @@ public sealed class SurveysConsumer : IConsumer<SurveyQueueModel>
 
     private readonly IStatisticsService _statisticsService;
 
-    
+
     public SurveysConsumer(ILogger logger, IMapper mapper, IStatisticsService statisticsService)
     {
         _logger = logger;
@@ -53,7 +53,7 @@ public sealed class SurveysConsumer : IConsumer<SurveyQueueModel>
                 
                 break;
             case EventType.Delete:
-                
+                await _statisticsService.DeleteStatisticsAsync(survey);
                 break;
             default:
                 throw new 

@@ -10,7 +10,8 @@ using Statistics.Models.Surveys;
 using Statistics.Services.Abstracts;
 using Statistics.Services.Models;
 using SurveyMe.Common.Exceptions;
-using SurveyMe.SurveyPersonApi.Models.Request.Options.Survey;
+using SurveyMe.PersonsApi.Models.Request.Personality;
+using SurveyMe.SurveyPersonApi.Models.Common;
 
 namespace Statistics.Services;
 
@@ -39,40 +40,72 @@ public class StatisticsService : IStatisticsService
     {
         var statistics = await _unitOfWork.Statistics.GetStatisticBySurveyId(surveyId);
 
+        if (statistics == null)
+        {
+            throw new NotFoundException("Statistics not found");
+        }
+        
         var personalityOptionsResponse = await _personOptionsApi
             .GetSurveyOptionsAsync(statistics.SurveyId);
 
-        var personalityOptions = _mapper.Map<SurveyOptionsGetRequestModel>(personalityOptionsResponse);
+        if (personalityOptionsResponse == null)
+        {
+            throw new NotFoundException("Options for survey not found");
+        }
+        
+        var personalityOptions = new PersonalityGetRequestModel
+        {
+            SurveyId = surveyId,
+            Options = personalityOptionsResponse.Options
+                .Where(o => o.IsRequired)
+                .Select(o => o.PropertyName)
+                .ToList()
+        };
 
         var personalities = new List<Personality>();
         
         foreach (var statisticsPersonality in statistics.Personalities)
         {
             var personalityResponse = await _personsApi
-                .GetPersonalityAsync(statisticsPersonality.Id, personalityOptions);
+                .GetPersonalityAsync(statisticsPersonality.PersonalityId, personalityOptions);
+            
             var personality = _mapper.Map<Personality>(personalityResponse);
             
             personalities.Add(personality);
         }
 
-        var averageAge = personalities.Sum(p => p.Age) / personalities.Count;
-
-        var genderStatistics = personalities
-            .GroupBy(p => p.Gender)
-            .ToDictionary(grouping => grouping.Key.Value, grouping => grouping.Count());
-
         var statisticResult = new SurveyStatisticsWithPersonality
         {
-            GenderStatistics = genderStatistics,
-            AverageAge = averageAge,
             SurveyStatistics = statistics
         };
+        
+        if (personalityOptions.Options.Contains(PropertyNames.Age))
+        {
+            var averageAge = personalities.Sum(p => p.Age) / personalities.Count;
+            statisticResult.AverageAge = averageAge;
+        }
 
+        if (personalityOptions.Options.Contains(PropertyNames.Gender))
+        {
+            var genderStatistics = personalities
+                .GroupBy(p => p.Gender)
+                .ToDictionary(grouping => grouping.Key.Value, grouping => grouping.Count());
+
+            statisticResult.GenderStatistics = genderStatistics;
+        }
+        
         return statisticResult;
     }
 
     public async Task DeleteStatisticsAsync(Survey survey)
     {
+        var isExists = await _unitOfWork.Statistics.IsStatisticsExists(survey.Id);
+
+        if (!isExists)
+        {
+            throw new NotFoundException("Statistics do not exist");
+        }
+        
         await _unitOfWork.Statistics.DeleteStatisticsBySurveyIdAsync(survey.Id);
     }
 
@@ -128,15 +161,28 @@ public class StatisticsService : IStatisticsService
     {
         var statistics = await _unitOfWork.Statistics.GetStatisticBySurveyId(answer.SurveyId);
 
+        if (statistics == null)
+        {
+            throw new NotFoundException("Statistics not found");
+        }
+        
         statistics.AnswersCount++;
-        foreach (var questionAnswer in answer.QuestionAnswers)
+
+        var personality = new PersonalityInfo
+        {
+            PersonalityId = answer.PersonalityId
+        };
+        
+        statistics.Personalities.Add(personality);
+        
+        foreach (var questionAnswer in answer.Answers)
         {
             var questionStatistics = statistics.QuestionStatistics
                 .FirstOrDefault(q => q.QuestionId == questionAnswer.QuestionId);
 
             if (questionStatistics == null)
             {
-                throw new BadRequestException("Question not found");
+                throw new NotFoundException("Question not found");
             }
             
             switch (questionAnswer)
@@ -149,7 +195,7 @@ public class StatisticsService : IStatisticsService
 
                     if (option == null)
                     {
-                        throw new BadRequestException("Option not found");
+                        throw new NotFoundException("Option not found");
                     }
                     
                     option.AnswersCount++;
@@ -162,7 +208,7 @@ public class StatisticsService : IStatisticsService
 
                         if (optionStatistic == null)
                         {
-                            throw new BadRequestException("Option not found");
+                            throw new NotFoundException("Option not found");
                         }
                         
                         optionStatistic.AnswersCount++;
@@ -187,5 +233,7 @@ public class StatisticsService : IStatisticsService
 
             questionStatistics.AnswersCount++;
         }
+
+        await _unitOfWork.Statistics.UpdateAsync(statistics);
     }
 }

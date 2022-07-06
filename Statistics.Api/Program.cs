@@ -12,7 +12,10 @@ using Statistics.Data.EFCore.Abstracts;
 using Statistics.Data.Refit;
 using Statistics.Services;
 using Statistics.Services.Abstracts;
+using Statistics.Services.AutoMapper.Profiles;
+using SurveyMe.AnswersApi.Models.Queue;
 using SurveyMe.Common.Logging;
+using SurveyMe.QueueModels;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +32,7 @@ builder.Services.AddControllers()
     .AddJsonOptions(o =>
     {
         o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        o.JsonSerializerOptions.Converters.Add(new QuestionStatisticsConverter());
     });
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
 builder.Services.AddEndpointsApiExplorer();
@@ -56,6 +60,7 @@ builder.Services.AddScoped<IStatisticsUnitOfWork, StatisticsUnitOfWork>();
 builder.Services.AddAutoMapper(configuration =>
 {
     configuration.AddMaps(typeof(Program).Assembly);
+    configuration.AddProfile(new PersonalityProfile());
 });
 
 builder.Services.AddMassTransit(c =>
@@ -78,7 +83,17 @@ builder.Services.AddMassTransit(c =>
             h.Password("guest");
         });
         
-        config.ConfigureEndpoints(context);
+        config.ReceiveEndpoint("survey-statistics-queue", e =>
+        {
+            e.Bind<SurveyQueueModel>();
+            e.ConfigureConsumer<SurveysConsumer>(context);
+        });
+        
+        config.ReceiveEndpoint("answers-statistics-queue", e =>
+        {
+            e.Bind<SurveyAnswerQueue>();
+            e.ConfigureConsumer<AnswersConsumer>(context);
+        });
     });
 });
 

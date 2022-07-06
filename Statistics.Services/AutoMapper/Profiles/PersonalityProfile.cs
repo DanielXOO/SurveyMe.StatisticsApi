@@ -9,5 +9,6 @@ public class PersonalityProfile : Profile
     public PersonalityProfile()
     {
         CreateMap<PersonalityResponseModel, PersonalityInfo>();
+        CreateMap<PersonalityResponseModel, Personality>();
     }
 }

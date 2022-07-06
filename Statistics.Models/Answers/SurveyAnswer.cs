@@ -6,5 +6,5 @@ public class SurveyAnswer
 
     public Guid PersonalityId { get; set; }
 
-    public List<BaseQuestionAnswer> QuestionAnswers { get; set; } 
+    public List<BaseQuestionAnswer> Answers { get; set; } 
 }

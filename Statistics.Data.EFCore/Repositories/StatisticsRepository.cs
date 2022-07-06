@@ -48,8 +48,8 @@ public class StatisticsRepository : Repository<SurveyStatistics>, IStatisticsRep
         return Data
             .Include(e => e.Personalities)
             .Include(e => e.QuestionStatistics)
-            .ThenInclude(e => (e as CheckboxQuestionStatistics).OptionsStatistics)
+            .ThenInclude(e => (e as CheckboxQuestionStatistics)!.OptionsStatistics)
             .Include(e => e.QuestionStatistics)
-            .ThenInclude(e => (e as RadioQuestionStatistics).OptionsStatistics);
+            .ThenInclude(e => (e as RadioQuestionStatistics)!.OptionsStatistics);
     }
 }
