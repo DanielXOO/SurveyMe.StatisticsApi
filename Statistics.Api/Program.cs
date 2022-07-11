@@ -36,7 +36,11 @@ builder.Services.AddControllers()
     });
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    var filePath = Path.Combine(AppContext.BaseDirectory, "Statistics.Api.xml");
+    options.IncludeXmlComments(filePath);
+});
 
 builder.Services.AddHttpContextAccessor();
 
