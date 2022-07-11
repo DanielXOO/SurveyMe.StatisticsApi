@@ -48,13 +48,13 @@ builder.Services.AddTransient<AuthorizeHandler>();
 
 builder.Services.AddRefitClient<ISurveyPersonOptionsApi>().ConfigureHttpClient(config =>
 {
-    var stringUrl = builder.Configuration.GetConnectionString("SurveyPersonOptionsApi");
+    var stringUrl = builder.Configuration.GetConnectionString("GatewayURL");
     config.BaseAddress = new Uri(stringUrl);
 }).AddHttpMessageHandler<AuthorizeHandler>();
 
 builder.Services.AddRefitClient<IPersonsApi>().ConfigureHttpClient(config =>
 {
-    var stringUrl = builder.Configuration.GetConnectionString("PersonsApi");
+    var stringUrl = builder.Configuration.GetConnectionString("GatewayURL");
     config.BaseAddress = new Uri(stringUrl);
 }).AddHttpMessageHandler<AuthorizeHandler>();
 

@@ -6,6 +6,6 @@ namespace Statistics.Data.Refit;
 
 public interface IPersonsApi
 {
-    [Get("/api/persons/{id}")]
+    [Get("/persons-api/persons/{id}")]
     Task<PersonalityResponseModel> GetPersonalityAsync(Guid id, [Query] PersonalityGetRequestModel personality);
 }

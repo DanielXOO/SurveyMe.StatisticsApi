@@ -5,6 +5,6 @@ namespace Statistics.Data.Refit;
 
 public interface ISurveyPersonOptionsApi
 {
-    [Get("/api/surveys/{surveyId}/surveyperson")]
+    [Get("/survey-person-options-api/surveys/{surveyId}/surveyperson")]
     Task<SurveyOptionsResponseModel> GetSurveyOptionsAsync(Guid surveyId);
 }
