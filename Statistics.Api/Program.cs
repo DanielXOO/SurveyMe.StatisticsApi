@@ -42,8 +42,6 @@ builder.Services.AddSwaggerGen(options =>
     options.IncludeXmlComments(filePath);
 });
 
-builder.Services.AddHttpContextAccessor();
-
 builder.Services.AddTransient<AuthorizeHandler>();
 
 builder.Services.AddRefitClient<ISurveyPersonOptionsApi>().ConfigureHttpClient(config =>
@@ -59,6 +57,7 @@ builder.Services.AddRefitClient<IPersonsApi>().ConfigureHttpClient(config =>
 }).AddHttpMessageHandler<AuthorizeHandler>();
 
 builder.Services.AddScoped<IStatisticsService, StatisticsService>();
+builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<IStatisticsUnitOfWork, StatisticsUnitOfWork>();
 
 builder.Services.AddAutoMapper(configuration =>
@@ -106,9 +105,8 @@ builder.Services.AddAuthentication(IdentityServerAuthenticationDefaults.Authenti
     {
         options.Authority = "https://localhost:7179";
         options.RequireHttpsMetadata = false;
-        options.ApiName = "SurveyMeApi";
-        options.ApiSecret = "api_secret";
-        options.JwtValidationClockSkew = TimeSpan.FromDays(1);
+        options.ApiName = "Statistics.Api";
+        options.ApiSecret = "statistics_secret";
     });
 
 var app = builder.Build();
