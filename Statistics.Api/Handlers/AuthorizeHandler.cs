@@ -1,28 +1,34 @@
+using System.Net.Http.Headers;
+using Statistics.Services.Abstracts;
+using SurveyMe.AuthenticationApi.Models.Request;
 using SurveyMe.Common.Exceptions;
 
 namespace Statistics.Api.Handlers;
 
 public class AuthorizeHandler : DelegatingHandler
 {
-    private readonly IHttpContextAccessor _accessor;
+    private readonly IAuthenticationService _authenticationService;
     
     
-    public AuthorizeHandler(IHttpContextAccessor accessor)
+    public AuthorizeHandler(IAuthenticationService authenticationService)
     {
-        _accessor = accessor;
+        _authenticationService = authenticationService;
     }
 
-    protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
-        string header = _accessor.HttpContext.Request.Headers.Authorization;
-
-        if (string.IsNullOrEmpty(header))
+        var requestToken = new GetTokenRequestModel
         {
-            throw new UnauthorizedException("Token not found");
-        }
+            client_id = "api",
+            client_secret = "api_secret",
+            grant_type = "client_credentials",
+            scope = "ApisScope"
+        };
+
+        var token = await _authenticationService.GetTokenAsync(requestToken);
+
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
         
-        request.Headers.Add("Authorization", header);
-        
-        return base.SendAsync(request, cancellationToken);
+        return await base.SendAsync(request, cancellationToken);
     }
 }
