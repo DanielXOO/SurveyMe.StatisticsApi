@@ -56,6 +56,12 @@ builder.Services.AddRefitClient<IPersonsApi>().ConfigureHttpClient(config =>
     config.BaseAddress = new Uri(stringUrl);
 }).AddHttpMessageHandler<AuthorizeHandler>();
 
+builder.Services.AddRefitClient<IAuthenticationApi>().ConfigureHttpClient(config =>
+{
+    var stringUrl = builder.Configuration.GetConnectionString("GatewayURL");
+    config.BaseAddress = new Uri(stringUrl);
+});
+
 builder.Services.AddScoped<IStatisticsService, StatisticsService>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<IStatisticsUnitOfWork, StatisticsUnitOfWork>();
@@ -80,7 +86,7 @@ builder.Services.AddMassTransit(c =>
             return options;
         });
         
-        config.Host("localhost", "/", h =>
+        config.Host("rabbitmq", "/", h =>
         {
             h.Username("guest");
             h.Password("guest");
