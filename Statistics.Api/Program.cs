@@ -25,6 +25,8 @@ builder.Host.ConfigureLogging(logBuilder =>
     logBuilder.AddFile(builder.Configuration.GetSection("Serilog:FileLogging"));
 });
 
+var connectionString = Environment.GetEnvironmentVariable("ConnectionString");
+
 builder.Services.AddDbContext<StatisticsDbContext>(o 
     => o.UseNpgsql(builder.Configuration
         .GetConnectionString("DefaultConnection")));

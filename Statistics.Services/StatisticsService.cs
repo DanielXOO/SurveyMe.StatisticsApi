@@ -109,6 +109,13 @@ public class StatisticsService : IStatisticsService
         await _unitOfWork.Statistics.DeleteStatisticsBySurveyIdAsync(survey.Id);
     }
 
+    public async Task UpdateStatisticsAsync(Survey survey)
+    {
+        await DeleteStatisticsAsync(survey);
+
+        await CreateStatisticsAsync(survey);
+    }
+
     public async Task CreateStatisticsAsync(Survey survey)
     {
         var surveyStatistics = new SurveyStatistics

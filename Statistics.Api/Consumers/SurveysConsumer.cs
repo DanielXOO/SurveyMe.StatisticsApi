@@ -50,7 +50,7 @@ public sealed class SurveysConsumer : IConsumer<SurveyQueueModel>
                 await _statisticsService.CreateStatisticsAsync(survey);
                 break;
             case EventType.Update:
-                
+                await _statisticsService.UpdateStatisticsAsync(survey);
                 break;
             case EventType.Delete:
                 await _statisticsService.DeleteStatisticsAsync(survey);
