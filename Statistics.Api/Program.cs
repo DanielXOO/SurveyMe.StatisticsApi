@@ -28,8 +28,7 @@ builder.Host.ConfigureLogging(logBuilder =>
 var connectionString = Environment.GetEnvironmentVariable("ConnectionString");
 
 builder.Services.AddDbContext<StatisticsDbContext>(o 
-    => o.UseNpgsql(builder.Configuration
-        .GetConnectionString("DefaultConnection")));
+    => o.UseNpgsql(connectionString));
 builder.Services.AddControllers()
     .AddJsonOptions(o =>
     {
@@ -111,7 +110,7 @@ builder.Services.AddMassTransit(c =>
 builder.Services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
     .AddIdentityServerAuthentication(options =>
     {
-        options.Authority = "https://authentication-api:5001";;
+        options.Authority = "http://authentication-api";;
         options.RequireHttpsMetadata = false;
         options.ApiName = "Statistics.Api";
         options.ApiSecret = "statistics_secret";
