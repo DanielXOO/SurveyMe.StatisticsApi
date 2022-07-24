@@ -25,7 +25,7 @@ builder.Host.ConfigureLogging(logBuilder =>
     logBuilder.AddFile(builder.Configuration.GetSection("Serilog:FileLogging"));
 });
 
-var connectionString = Environment.GetEnvironmentVariable("ConnectionString");
+var connectionString = "Host=localhost;Port=5432;Database=StatisticsDb;Username=postgres;Password=46382929";
 
 builder.Services.AddDbContext<StatisticsDbContext>(o 
     => o.UseNpgsql(connectionString));
@@ -87,7 +87,7 @@ builder.Services.AddMassTransit(c =>
             return options;
         });
         
-        config.Host("rabbitmq", "/", h =>
+        config.Host("localhost", "/", h =>
         {
             h.Username("guest");
             h.Password("guest");
@@ -110,7 +110,7 @@ builder.Services.AddMassTransit(c =>
 builder.Services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
     .AddIdentityServerAuthentication(options =>
     {
-        options.Authority = "http://authentication-api";;
+        options.Authority = "https://localhost:7179";
         options.RequireHttpsMetadata = false;
         options.ApiName = "Statistics.Api";
         options.ApiSecret = "statistics_secret";

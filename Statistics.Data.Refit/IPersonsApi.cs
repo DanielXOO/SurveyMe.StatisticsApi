@@ -7,5 +7,6 @@ namespace Statistics.Data.Refit;
 public interface IPersonsApi
 {
     [Get("/persons-api/persons/{id}")]
-    Task<PersonalityResponseModel> GetPersonalityAsync(Guid id, [Query] PersonalityGetRequestModel personality);
+    Task<PersonalityResponseModel> GetPersonalityAsync(Guid id, [Query] Guid surveyId, 
+        [Query(CollectionFormat.Multi)]IReadOnlyCollection<string> options);
 }
