@@ -29,9 +29,11 @@ public class QuestionStatisticsConverter : JsonConverter<BaseQuestionStatisticsR
                 writer.WriteStartArray();
                 foreach (var radioOptionStatistics in radioStatistics.OptionsStatistics)
                 {
+                    writer.WriteStartObject();
                     writer.WriteString("id", radioOptionStatistics.Id);
                     writer.WriteString("optionId", radioOptionStatistics.OptionId);
                     writer.WriteNumber("answersCount", radioOptionStatistics.AnswersCount);
+                    writer.WriteEndObject();
                 }
                 writer.WriteEndArray();
                 break;
@@ -40,9 +42,11 @@ public class QuestionStatisticsConverter : JsonConverter<BaseQuestionStatisticsR
                 writer.WriteStartArray();
                 foreach (var radioOptionStatistics in checkboxStatistics.OptionsStatistics)
                 {
+                    writer.WriteStartObject();
                     writer.WriteString("id", radioOptionStatistics.Id);
                     writer.WriteString("optionId", radioOptionStatistics.OptionId);
                     writer.WriteNumber("answersCount", radioOptionStatistics.AnswersCount);
+                    writer.WriteEndObject();
                 }
                 writer.WriteEndArray();
                 break;

@@ -110,7 +110,7 @@ builder.Services.AddMassTransit(c =>
 builder.Services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
     .AddIdentityServerAuthentication(options =>
     {
-        options.Authority = "http://authentication-api";;
+        options.Authority = "http://authentication-api";
         options.RequireHttpsMetadata = false;
         options.ApiName = "Statistics.Api";
         options.ApiSecret = "statistics_secret";

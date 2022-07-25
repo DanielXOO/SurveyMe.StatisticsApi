@@ -52,22 +52,18 @@ public class StatisticsService : IStatisticsService
         {
             throw new NotFoundException("Options for survey not found");
         }
-        
-        var personalityOptions = new PersonalityGetRequestModel
-        {
-            SurveyId = surveyId,
-            Options = personalityOptionsResponse.Options
-                .Where(o => o.IsRequired)
-                .Select(o => o.PropertyName)
-                .ToList()
-        };
+
+        var personalityOptions = personalityOptionsResponse.Options
+            .Where(o => o.IsRequired)
+            .Select(o => o.PropertyName)
+            .ToList();
 
         var personalities = new List<Personality>();
         
         foreach (var statisticsPersonality in statistics.Personalities)
         {
             var personalityResponse = await _personsApi
-                .GetPersonalityAsync(statisticsPersonality.PersonalityId, personalityOptions);
+                .GetPersonalityAsync(statisticsPersonality.PersonalityId, surveyId, personalityOptions);
             
             var personality = _mapper.Map<Personality>(personalityResponse);
             
@@ -79,13 +75,13 @@ public class StatisticsService : IStatisticsService
             SurveyStatistics = statistics
         };
         
-        if (personalityOptions.Options.Contains(PropertyNames.Age))
+        if (personalityOptions.Contains(PropertyNames.Age))
         {
             var averageAge = personalities.Sum(p => p.Age) / personalities.Count;
             statisticResult.AverageAge = averageAge;
         }
 
-        if (personalityOptions.Options.Contains(PropertyNames.Gender))
+        if (personalityOptions.Contains(PropertyNames.Gender))
         {
             var genderStatistics = personalities
                 .GroupBy(p => p.Gender)
